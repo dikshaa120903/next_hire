@@ -28,7 +28,13 @@ def _openai_chat_completion(system_prompt: str, user_prompt: str, temperature: f
     
     try:
         model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-        client = OpenAI(api_key=api_key)
+        base_url = os.getenv("OPENAI_BASE_URL")
+        
+        client_kwargs = {"api_key": api_key}
+        if base_url:
+            client_kwargs["base_url"] = base_url
+            
+        client = OpenAI(**client_kwargs)
         completion = client.chat.completions.create(
             model=model_name,
             temperature=temperature,

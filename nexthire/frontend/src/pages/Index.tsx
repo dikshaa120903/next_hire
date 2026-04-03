@@ -2,9 +2,10 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   FileSearch, Sparkles, Target, ArrowRight, Zap, Shield, BarChart3,
-  Brain, Rocket, Users, CheckCircle, Globe, Clock, Star, Layers
+  Brain, Rocket, Users, CheckCircle, Globe, Clock, Star, Layers, LogIn
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { isAuthenticated } from "@/lib/auth";
 
 const features = [
   {
@@ -75,8 +76,26 @@ const floatSlow = {
 };
 
 const Index = () => {
+  const isLoggedIn = isAuthenticated();
+
   return (
-    <div className="min-h-screen gradient-surface overflow-hidden">
+    <div className="min-h-screen gradient-surface overflow-hidden relative">
+      {/* Top Navigation / Sign In */}
+      <div className="absolute top-6 right-6 z-50 md:top-8 md:right-8">
+        {isLoggedIn ? (
+          <Button asChild variant="outline" className="glass hover:bg-white/10 text-white border-white/20">
+            <Link to="/dashboard">Go to Dashboard</Link>
+          </Button>
+        ) : (
+          <Button asChild className="gradient-primary hover:opacity-90 text-white shadow-glow">
+            <Link to="/login">
+              <LogIn className="w-4 h-4 mr-2" />
+              Sign In
+            </Link>
+          </Button>
+        )}
+      </div>
+
       {/* Hero */}
       <section className="relative">
         {/* Animated gradient orbs */}

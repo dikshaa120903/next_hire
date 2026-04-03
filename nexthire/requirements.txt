@@ -8,3 +8,5 @@ pymupdf>=1.24
 python-docx>=1.1
 openai>=1.40
 djangorestframework-simplejwt>=5.3.1
+faiss-cpu>=1.8.0
+sentence-transformers>=3.0.0

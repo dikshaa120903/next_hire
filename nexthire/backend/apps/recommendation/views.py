@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 
 from apps.recommendation.serializers import JobRecommendationInputSerializer
 from apps.resume.models import Resume
+from utils.faiss_helper import job_index
 
 JOB_CATALOG = [
     {
@@ -106,3 +107,70 @@ class RecommendJobsAPIView(APIView):
                 }
             )
         return Response({"recommendations": recommendations}, status=status.HTTP_200_OK)
+
+
+class RecommendJobsSemanticAPIView(APIView):
+    def post(self, request):
+        serializer = JobRecommendationInputSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload = serializer.validated_data
+        
+        resume_text = payload.get("resume_text", "")
+        skills = payload.get("skills", [])
+        resume_id = payload.get("resume_id")
+        
+        if resume_id:
+            resume = Resume.objects.filter(id=resume_id).first()
+            if not resume:
+                return Response({"error": "Resume not found."}, status=status.HTTP_404_NOT_FOUND)
+            resume_text = resume.extracted_text
+            skills = list(resume.skills.values_list("name", flat=True))
+            
+        source_text = f"{resume_text} {' '.join(skills)}".strip()
+        if not source_text:
+            return Response({"error": "No content available to compute recommendations."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        try:
+            # Build index playfully lazy
+            if job_index.index is None:
+                job_index.build_index(JOB_CATALOG)
+                
+            # Query FAISS
+            faiss_results = job_index.search(source_text, top_k=5)
+            
+            recommendations = []
+            source_text_lower = source_text.lower()
+            
+            for index_match in faiss_results:
+                job = index_match["job"]
+                match_percent = round(index_match["score"] * 100, 2)
+                
+                missing_skills = [
+                    skill for skill in job.get("required_skills", [])
+                    if skill.lower() not in source_text_lower
+                ]
+                
+                if match_percent >= 80:
+                    why = "Semantic match: Excellent conceptual alignment with your experience."
+                elif match_percent >= 50:
+                    why = "Semantic match: Strong relevance in context, despite some missing keywords."
+                else:
+                    why = "Semantic match: Low context overlap, consider improving your resume's semantic clarity."
+                    
+                recommendations.append(
+                    {
+                        "title": job["title"],
+                        "company": job["company"],
+                        "location": job["location"],
+                        "match_percent": match_percent,
+                        "missing_skills": missing_skills,
+                        "why_recommended": why
+                    }
+                )
+            
+            return Response({"recommendations": recommendations}, status=status.HTTP_200_OK)
+            
+        except Exception as exc:
+            import logging
+            logging.error(f"Semantic search error: {exc}", exc_info=True)
+            return Response({"error": f"Semantic search failed: {exc}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

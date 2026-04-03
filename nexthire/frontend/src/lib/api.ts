@@ -117,7 +117,7 @@ export const scoreResumeWithDescription = async (resumeId: number, jobDescriptio
 };
 
 export const recommendJobs = async (resumeId: number): Promise<RecommendJobsResponse> => {
-  const response = await apiFetch(`${API_BASE_URL}/api/recommend-jobs/`, {
+  const response = await apiFetch(`${API_BASE_URL}/api/recommend-jobs-semantic/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ resume_id: resumeId }),
