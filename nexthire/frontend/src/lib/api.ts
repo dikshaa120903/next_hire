@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/+$/, "");
 import { getAccessToken } from "./auth";
 
 const apiFetch = async (url: string, options: RequestInit = {}) => {
@@ -83,8 +83,7 @@ export const uploadResume = async (file: File, jobDescription?: string): Promise
       body: formData,
     });
   } catch (error) {
-    console.error("[API] Network error during upload:", error);
-    throw new Error("Connection failed. Check if your backend is running at http://127.0.0.1:8000");
+    throw new Error(`Connection failed. Check if your backend is running at ${API_BASE_URL || window.location.origin}`);
   }
   if (!response.ok) {
     throw new Error(await parseErrorMessage(response));
