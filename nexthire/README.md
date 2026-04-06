@@ -1,101 +1,90 @@
-# CareerBoost AI Dashboard
+# CareerBoost AI Platform
 
-A full-stack AI-powered resume analysis and job recommendation platform.
+A full-stack AI-powered resume analysis and scoring platform, now upgraded for professional production deployment on **Azure** using **Supabase** and **Groq (Llama 3.3)**.
 
-## Project Structure
+---
 
-```
-careerboost-ai-dashboard/
-├── frontend/                 # React + TypeScript frontend application
-│   ├── src/                 # React components and pages
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/           # Page components (Dashboard, Jobs, Suggestions, etc.)
-│   │   ├── lib/             # API utilities and helpers
-│   │   ├── hooks/           # Custom React hooks
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── public/              # Static assets
-│   ├── package.json         # Frontend dependencies
-│   ├── vite.config.ts       # Vite configuration
-│   ├── tsconfig.json        # TypeScript configuration
-│   ├── tailwind.config.ts   # Tailwind CSS configuration
-│   └── index.html           # HTML entry point
+## 🏛️ Project Directory Structure
+
+```text
+nexthire/
+├── frontend/             # React 18 + TypeScript Frontend
+│   ├── src/             # Source code (pages, components, lib)
+│   ├── public/          # Static assets
+│   ├── dist/            # Production build folder (on VM)
+│   └── vite.config.ts   # Build configuration
 │
-├── backend/                 # Django REST API backend
-│   ├── apps/                # Django applications
-│   │   ├── ai/              # AI/ML features (improve resume, chat)
-│   │   ├── recommendation/  # Job recommendations
-│   │   ├── scoring/         # Resume scoring
-│   │   └── resume/          # Resume upload & processing
-│   ├── config/              # Django settings
-│   ├── utils/               # ML utilities (model loader, feature extraction)
-│   ├── manage.py            # Django management
-│   ├── requirements.txt     # Python dependencies
-│   └── db.sqlite3           # SQLite database
+├── backend/             # Django REST Framework Backend
+│   ├── apps/           # Django apps (ai, resume, scoring, users)
+│   ├── config/         # System settings (settings.py)
+│   ├── utils/          # ML & AI utilities (Groq, FAISS, scikit-learn)
+│   ├── staticfiles/     # Collected static assets
+│   ├── manage.py       # Django management script
+│   └── .env            # Environment secrets (Supabase, Groq)
 │
-├── README.md                # This file
-└── .gitignore              # Git ignore rules
+├── deploy.sh           # Automated server-side deployment script
+├── requirements.txt     # Python backend dependencies
+└── README.md            # This documentation file
 ```
 
-## Getting Started
+---
 
-### Backend Setup
+## 🚀 Setting Up the Development Environment
 
-```bash
-cd backend
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py runserver
-```
+### 1. Backend Setup (Django)
 
-Backend runs on: `http://localhost:8000`
+1.  **Environment**: Create a Python virtual environment.
+    ```bash
+    python -m venv venv
+    source venv/bin/activate # Windows: venv\Scripts\activate
+    ```
+2.  **Dependencies**: Install the required Python packages.
+    ```bash
+    pip install -r requirements.txt
+    ```
+3.  **Secrets**: Configure your `backend/.env` file with your **Supabase `DATABASE_URL`** and **Groq `OPENAI_API_KEY`**.
+4.  **Database**: Migrate and create your database tables.
+    ```bash
+    python manage.py migrate
+    ```
+5.  **Run**: Start the development server.
+    ```bash
+    python manage.py runserver
+    ```
 
-API endpoints:
-- `POST /api/upload-resume/` - Upload resume file
-- `POST /api/score-resume/` - Get resume score
-- `POST /api/recommend-jobs/` - Get job recommendations
-- `POST /api/improve-resume/` - Get AI suggestions
+### 2. Frontend Setup (React)
 
-### Frontend Setup
+1.  **Dependencies**: Install npm packages.
+    ```bash
+    cd frontend
+    npm install
+    ```
+2.  **Run**: Start the Vite development server.
+    ```bash
+    npm run dev
+    ```
 
-```bash
-cd frontend
-npm install
-# or
-bun install
+---
 
-# Development
-npm run dev
-# or
-bun run dev
+## 🛠️ Production & CI/CD Pipeline
 
-# Build for production
-npm run build
-# or
-bun run build
-```
+The application is fully automated for production on an **Azure Virtual Machine**.
 
-Frontend runs on: `http://localhost:5173`
+- **CI/CD**: Every push to the `main` branch triggers a **GitHub Action** that logs into the Azure VM via SSH and executes the `deploy.sh` script.
+- **Auto-Update**: The script handles `git pull`, `npm build`, `django collectstatic`, `django migrate`, and restarts the **PM2** process for the backend.
+- **Traffic Routing**: **Nginx** acts as a reverse proxy, serving the React frontend on Port 80 and routing `/api/` traffic to the Django Gunicorn server.
 
-## Features
+---
 
-✨ **AI Resume Analysis** - Get your resume scored and analyzed
-🎯 **Job Recommendations** - Discover AI-matched job opportunities
-💡 **Resume Suggestions** - AI-powered resume improvement tips
-📊 **Analytics Dashboard** - View your resume metrics and scores
+## 🔐 Credentials & Security
 
-## Tech Stack
+The platform is secured with:
+- **SSL/HTTPS**: Automatically managed by **Certbot (Let's Encrypt)**.
+- **Session Pooler**: High-performance database connections through **Supavisor (Supabase)**.
+- **Environment Separation**: Distinct settings for local development vs production environments.
 
-**Frontend:**
-- React 18 + TypeScript
-- Vite (build tool)
-- Tailwind CSS (styling)
-- Framer Motion (animations)
-- React Query (state management)
+---
 
-**Backend:**
-- Django + Django REST Framework
-- scikit-learn (job matching)
-- OpenAI API (resume improvements)
-- SQLite (database)
-- Python 3.8+
+## 📬 Contact
+**Diksha Malusare**  
+Email: [dikshaamalusare@gmail.com](mailto:dikshaamalusare@gmail.com)
